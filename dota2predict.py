@@ -1,28 +1,28 @@
 import telebot
 from bs4 import BeautifulSoup
-from requests_html import HTMLSession
+import time
+from selenium import webdriver
 
+options = webdriver.ChromeOptions()
+options.add_argument("--enable-javascript")
+driver = webdriver.Chrome(options=options)
 
-session = HTMLSession()
+driver.get("https://stratz.com/matches/live?sortBy=AVERAGE_MMR")
+time.sleep(10)
+html = driver.page_source
 
-r = session.get('http://www.yourjspage.com')
-
-r.html.render()  # this call executes the js in the page
-
-
-
+soup = BeautifulSoup(html, "html5lib")
+print(soup)
 bot = telebot.TeleBot("5678522382:AAEtQYOYSChWrI-1mItc0H6_Fq4MsLlgpAM")
 gameStarted = False
 users = {}
 heroesMatch = {}
 heroesRadiant = []
 heroesDire = []
-
-soup = BeautifulSoup(r.text, features="html5lib")
-print(soup)
-mydivsRadiant = soup.find_all("div", {"class": "sc-gsDKAQ jVYsTL"})
-
-
+mydivsRadiant = soup.find_all("img")
+mydivsDire = soup.find_all("img", {"data-radiant": "false"})
+# print(mydivsRadiant)
+# print(mydivsDire)
 
 class User:
     def __init__(self, uid, name):
