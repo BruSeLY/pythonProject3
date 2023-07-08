@@ -1,3 +1,4 @@
+import requests
 import telebot
 from bs4 import BeautifulSoup
 import time
@@ -7,9 +8,33 @@ session = HTMLSession()
 url = "https://www.opendota.com/matches/highMmr"
 r = session.get(url)
 r.html.render(sleep=1, keep_page=True, scrolldown=1)
+matches_not_final = {}
+r = r.html.links
+print(r)
+matches = {}
+t =0
+for i in r:
+    if len(i) == 19:
+        matches_not_final[t] = i[9:]
+        t+=1
 
-match = r.html.links
-print(match)
+heroes = requests.get("https://api.opendota.com/api/heroes").json()
+print(heroes)
+with open ("heroes.txt", "w") as f:
+    for i in range(len(heroes)):
+        f.write(f'{heroes[i]["localized_name"]} = {heroes[i]["id"]}\n')
+
+response = requests.get('https://api.opendota.com/api/matches/' + matches_not_final[0]).json()
+print(response)
+print(response["match_id"])
+print(response["picks_bans"])
+# for j in range(10):
+#     if response['picks_bans'][j][
+#         matches[response["match_id"]] = f"{response['rad']}radiant_team: {response['picks_bans']"
+
+# print(matches)
+
+
 
 bot = telebot.TeleBot("5678522382:AAEtQYOYSChWrI-1mItc0H6_Fq4MsLlgpAM")
 gameStarted = False
