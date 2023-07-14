@@ -10,7 +10,7 @@ r = session.get(url)
 r.html.render(sleep=1, keep_page=True, scrolldown=1)
 matches_not_final = {}
 r = r.html.links
-print(r)
+
 matches = {}
 t = 0
 for i in r:
@@ -19,54 +19,47 @@ for i in r:
         t += 1
 
 heroes = requests.get("https://api.opendota.com/api/heroes").json()
-print(heroes)
-with open ("heroes.txt", "w") as f:
+
+with open ("heroes.txt", "a") as f:
     for i in range(len(heroes)):
         if i != len(heroes) - 1:
             f.write(f'{heroes[i]["id"]}={heroes[i]["localized_name"]}\n')
         else:
             f.write(f'{(heroes[i]["id"])}={heroes[i]["localized_name"]}')
 
+for i in range(len(matches_not_final)):
+    response = requests.get('https://api.opendota.com/api/matches/' + matches_not_final[i]).json()
 
-response = requests.get('https://api.opendota.com/api/matches/' + matches_not_final[0]).json()
-print(response)
-print(response["match_id"])
-radiant = []
-dire = []
-for j in range(10):
-    if response['picks_bans'][j]["team"] == 0:
-        radiant.append(str(response["picks_bans"][j]["hero_id"]))
-    else:
-        dire.append(str(response["picks_bans"][j]["hero_id"]))
-
-print(radiant)
-sl = dict()
-with open ("heroes.txt", "r") as f:
-    s = f.read().split("\n")
-    for row in s:
-        row = row.split("=")
-        sl[row[0]] = row[1]
-print(sl)
-radiantWin = response["radiant_win"]
-for i in range(5):
-    radiant[i] = sl[radiant[i]]
-for i in range(5):
-    dire[i] = sl[dire[i]]
-print(radiantWin)
-print(radiant, "vs", dire)
-
-
+    radiant = []
+    dire = []
+    if "picks_bans" in response:
+        for j in range(10):
+            if response['picks_bans'][j]["team"] == 0:
+                radiant.append(str(response["picks_bans"][j]["hero_id"]))
+            else:
+                dire.append(str(response["picks_bans"][j]["hero_id"]))
+    sl = dict()
+    with open ("heroes.txt", "r") as f:
+        s = f.read().split("\n")
+        for row in s:
+            row = row.split("=")
+            sl[row[0]] = row[1]
+    if "radiant_win" in response:
+        radiantWin = response["radiant_win"]
+    if len(radiant) == 5 and len(dire) == 5:
+        for j in range(5):
+            radiant[j] = sl[radiant[j]]
+        for j in range(5):
+            dire[j] = sl[dire[j]]
+        print(radiantWin)
+        print(radiant, "vs", dire)
+        with open("matches.txt", "w") as f:
+            f.write(f"{response['match_id']},{radiant},{dire},{radiantWin}\n")
 
 bot = telebot.TeleBot("5678522382:AAEtQYOYSChWrI-1mItc0H6_Fq4MsLlgpAM")
 gameStarted = False
 users = {}
-heroesMatch = {}
-heroesRadiant = []
-heroesDire = []
-# mydivsRadiant = soup.find_all("img")
-# mydivsDire = soup.find_all("img", {"data-radiant": "false"})
-# print(mydivsRadiant)
-# print(mydivsDire)
+
 
 class User:
     def __init__(self, uid, name):
