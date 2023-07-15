@@ -20,13 +20,14 @@ for i in r:
 
 heroes = requests.get("https://api.opendota.com/api/heroes").json()
 
-with open ("heroes.txt", "a") as f:
+with open ("heroes.txt", "w") as f:
     for i in range(len(heroes)):
         if i != len(heroes) - 1:
-            f.write(f'{heroes[i]["id"]}={heroes[i]["localized_name"]}\n')
+            f.write(f'{heroes[i]["id"]};{heroes[i]["localized_name"]}\n')
         else:
-            f.write(f'{(heroes[i]["id"])}={heroes[i]["localized_name"]}')
+            f.write(f'{(heroes[i]["id"])};{heroes[i]["localized_name"]}')
 
+print(matches_not_final)
 for i in range(len(matches_not_final)):
     response = requests.get('https://api.opendota.com/api/matches/' + matches_not_final[i]).json()
 
@@ -42,7 +43,7 @@ for i in range(len(matches_not_final)):
     with open ("heroes.txt", "r") as f:
         s = f.read().split("\n")
         for row in s:
-            row = row.split("=")
+            row = row.split(";")
             sl[row[0]] = row[1]
     if "radiant_win" in response:
         radiantWin = response["radiant_win"]
@@ -51,14 +52,15 @@ for i in range(len(matches_not_final)):
             radiant[j] = sl[radiant[j]]
         for j in range(5):
             dire[j] = sl[dire[j]]
-        print(radiantWin)
-        print(radiant, "vs", dire)
-        with open("matches.txt", "w") as f:
-            f.write(f"{response['match_id']},{radiant},{dire},{radiantWin}\n")
+        # print(radiantWin)
+        # print(radiant, "vs", dire)
+        with open("matches.txt", "a") as f:
+            f.write(f"{response['match_id']};{radiant};{dire};{radiantWin};0;0;0,5\n")
 
 bot = telebot.TeleBot("5678522382:AAEtQYOYSChWrI-1mItc0H6_Fq4MsLlgpAM")
 gameStarted = False
 users = {}
+print("END")
 
 
 class User:
