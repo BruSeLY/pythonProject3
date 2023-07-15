@@ -90,8 +90,10 @@ def main_text_logic(msg):
     print(users[msg.from_user.id].user_id, users[msg.from_user.id].points, users[msg.from_user.id].status)
     usr = User(msg.from_user.id, msg.from_user.first_name)
     if "поставить очки" in msg.text.lower():
-        bot.send_message(msg.chat.id, f"Введите колличество очков через <bet колличество очков> без ковычек")
-        users[msg.from_user.id].status = "bet"
+        with open ("matches.txt", "r") as f:
+            bot.send_message(msg.chat.id, f"")
+            bot.send_message(msg.chat.id, f"Введите колличество очков через <bet колличество очков> без ковычек")
+            users[msg.from_user.id].status = "bet"
     if users[msg.from_user.id].status == "bet":
         play(msg, usr)
 
